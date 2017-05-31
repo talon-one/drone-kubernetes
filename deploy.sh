@@ -2,22 +2,16 @@
 
 set -e
 
-get_arg () {
-  echo "$PLUGIN_ARGS" | jq -r ".$1"
-}
-
-get_arg certificate_authority_data > ca.pem
-get_arg client_certificate_data > client.pem
-get_arg client_key_data > client-key.pem
+echo "$KUBECTL_CA_CERT" > ca.pem
+echo "$KUBECTL_CLIENT_CERT" > client.pem
+echo "$KUBECTL_CLIENT_KEY" > client-key.pem
 
 kubectl config set-cluster default \
-  --server=`get_arg api_server` \
-  --certificate-authority=`pwd`/ca.pem
+  --server=$KUBECTL_API_SERVER \
+  --certificate-authority=ca.pem
 
 kubectl config set-credentials default \
-  --client-certificate=`pwd`/client.pem \
-  --client-key=`pwd`/client-key.pem
+  --client-certificate=client.pem \
+  --client-key=client-key.pem
 
-cd $DRONE_DIR
-
-kubectl --cluster=default --user=default apply -f `get_arg resource_file // "kubernetes.yaml"`
+kubectl --cluster=default --user=default apply -f $PLUGIN_RESOURCE_FILE
