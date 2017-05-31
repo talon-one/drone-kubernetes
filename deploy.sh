@@ -1,18 +1,9 @@
 #!/bin/sh
 
-# read past the '--' argument
-while [[ $# -gt 0 ]]; do
-  current="$1"
-  shift
-  [[ "$current" = "--" ]] && break
-done
-
-args=`echo $@ | jq -c .vargs`
-
 set -e
 
 get_arg () {
-  echo "$args" | jq -r ".$1"
+  echo "$PLUGIN_ARGS" | jq -r ".$1"
 }
 
 get_arg certificate_authority_data > ca.pem
