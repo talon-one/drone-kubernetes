@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -14,4 +14,14 @@ kubectl config set-credentials default \
   --client-certificate=client.pem \
   --client-key=client-key.pem
 
-kubectl --cluster=default --user=default apply -f $PLUGIN_RESOURCE_FILE
+kubectl --cluster=default --user=default apply -f "$PLUGIN_RESOURCE_FILE"
+
+if [ -n "$PLUGIN_INGRESS_TEMPLATE" ]; then
+   touch ingress.yml
+   sleep 5
+   SVCS=($(kubectl --cluster=default --user=default get svc -o json | jq -r .items[].metadata.name))
+   echo "services: ${SVCS[@]}"
+   "$PLUGIN_INGRESS_TEMPLATE" ${SVCS[@]} >> ingress.yml
+fi
+
+kubectl --cluster=default --user=default apply -f ingress.yml
