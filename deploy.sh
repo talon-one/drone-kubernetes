@@ -22,6 +22,6 @@ if [ -n "$PLUGIN_INGRESS_TEMPLATE" ]; then
    SVCS=($(kubectl --cluster=default --user=default get svc -o json | jq -r '.items[].metadata.labels.branch | select(. != null)'))
    echo "services: ${SVCS[@]}"
    "$PLUGIN_INGRESS_TEMPLATE" ${SVCS[@]} >> ingress.yml
+   kubectl --cluster=default --user=default apply -f ingress.yml
 fi
 
-kubectl --cluster=default --user=default apply -f ingress.yml
